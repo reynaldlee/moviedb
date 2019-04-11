@@ -1,13 +1,56 @@
 import React, { Component } from "react"; //imrc
-import { View, Text, FlatList, StyleSheet, TextInput } from "react-native"; //imrn
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  ActivityIndicator
+} from "react-native"; //imrn
 
 import movieData from "../mockData";
 import { MovieListItem } from "../components/List";
+import { getMovieDetail } from "../actions/movieActions";
+import { getMoviesAPI } from "../api/movies";
 
 class MovieListScreen extends Component {
+  state = {
+    movieList: [],
+    loading: false,
+    error: null
+  };
+
+  static navigationOptions = ({ navigation }) => {
+    return {
+      title: navigation.state.params.title
+    };
+  };
+
   handlePress = () => {
     // this.props.navigation.navigate("MovieDetail");
   };
+
+  componentDidMount() {
+    this.setState({
+      loading: true
+    });
+
+    getMoviesAPI({
+      category: this.props.navigation.state.params.category
+    })
+      .then(response => {
+        const result = response.data;
+        this.setState({
+          movieList: result.results,
+          loading: false
+        });
+      })
+      .catch(error => {
+        this.setState({
+          loading: false,
+          error: error
+        });
+      });
+  }
 
   renderItem = ({ item, index }) => {
     return (
@@ -24,13 +67,25 @@ class MovieListScreen extends Component {
   };
 
   render() {
+    console.log(this.state);
+
+    if (this.state.loading) {
+      return (
+        <ActivityIndicator
+          color="red"
+          size="large"
+          style={{ backgroundColor: "black", flex: 1 }}
+        />
+      );
+    }
+
     return (
       <FlatList
         showsVerticalScrollIndicator={false}
         style={styles.container}
         keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.contentContainer}
-        data={movieData}
+        data={this.state.movieList}
         renderItem={this.renderItem}
       />
     );

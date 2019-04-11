@@ -1,8 +1,9 @@
 import React, { Component } from "react"; //imrc
-import { View, Text, Image, StyleSheet } from "react-native"; //imrn
+import { View, Text, Image, StyleSheet, ActivityIndicator } from "react-native"; //imrn
 import Swiper from "react-native-swiper";
 import ScrollableTabView from "react-native-scrollable-tab-view";
 import moment from "moment";
+import { connect } from "react-redux";
 
 import MovieDetailView from "../components/Movies/MovieDetailView";
 import {
@@ -11,7 +12,7 @@ import {
   MovieTrailersTab
 } from "../components/Tab";
 
-import movieDetail from "../mockDataDetail";
+import { getMovieDetail } from "../actions/movieActions";
 import { image_path } from "../config/constant";
 
 class MovieDetailScreen extends Component {
@@ -19,9 +20,26 @@ class MovieDetailScreen extends Component {
     this.props.navigation.goBack();
   };
 
+  componentDidMount() {
+    this.props.dispatch(getMovieDetail(this.props.navigation.state.params.id));
+  }
+
   render() {
-    const director = movieDetail.casts
-      ? movieDetail.casts.crew.find(crew => {
+    let { movieDetail } = this.props;
+    console.log(movieDetail);
+
+    if (movieDetail.loading == true || !movieDetail.data.title) {
+      return (
+        <ActivityIndicator
+          color="red"
+          size="large"
+          style={{ backgroundColor: "black", flex: 1 }}
+        />
+      );
+    }
+
+    const director = movieDetail.data.casts
+      ? movieDetail.data.casts.crew.find(crew => {
           return crew.job === "Director";
         })
       : {};
@@ -30,23 +48,25 @@ class MovieDetailScreen extends Component {
       <View style={styles.container}>
         <View style={styles.swiper}>
           <Swiper autoplay showsPagination={false}>
-            {movieDetail.images.backdrops.map(image => {
-              return (
-                <Image
-                  style={styles.image}
-                  key={image.file_path}
-                  source={{ uri: image_path + image.file_path }}
-                />
-              );
-            })}
+            {movieDetail.data.images &&
+              movieDetail.data.images.backdrops &&
+              movieDetail.data.images.backdrops.map(image => {
+                return (
+                  <Image
+                    style={styles.image}
+                    key={image.file_path}
+                    source={{ uri: image_path + image.file_path }}
+                  />
+                );
+              })}
           </Swiper>
         </View>
         <MovieDetailView
-          movieTitle={movieDetail.title}
-          genres={movieDetail.genres}
-          tagline={movieDetail.tagline}
-          poster={{ uri: image_path + movieDetail.poster_path }}
-          rating={movieDetail.vote_average}
+          movieTitle={movieDetail.data.title}
+          genres={movieDetail.data.genres}
+          tagline={movieDetail.data.tagline}
+          poster={{ uri: image_path + movieDetail.data.poster_path }}
+          rating={movieDetail.data.vote_average}
         />
 
         <ScrollableTabView
@@ -58,19 +78,22 @@ class MovieDetailScreen extends Component {
         >
           <MovieInfoTab
             tabLabel="INFO"
-            overview={movieDetail.overview}
-            budget={movieDetail.budget}
+            overview={movieDetail.data.overview}
+            budget={movieDetail.data.budget}
             director={director.name}
-            releaseDate={moment(movieDetail.releaseDate).format(
+            releaseDate={moment(movieDetail.data.release_date).format(
               "MMMM DD, YYYY"
             )}
           />
 
-          <MovieCastsTab tabLabel="CASTS" data={movieDetail.casts.cast} />
+          <MovieCastsTab
+            tabLabel="CASTS"
+            data={movieDetail.data.casts && movieDetail.data.casts.cast}
+          />
 
           <MovieTrailersTab
             tabLabel="TRAILERS"
-            data={movieDetail.videos.results}
+            data={movieDetail.data.videos && movieDetail.data.videos.results}
           />
         </ScrollableTabView>
       </View>
@@ -91,5 +114,8 @@ const styles = StyleSheet.create({
     opacity: 0.5
   }
 });
+const mapStateToProps = state => ({
+  movieDetail: state.movieDetail
+});
 
-export default MovieDetailScreen;
+export default connect(mapStateToProps)(MovieDetailScreen);

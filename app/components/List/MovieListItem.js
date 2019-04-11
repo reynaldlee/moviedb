@@ -12,16 +12,16 @@ const MovieListItem = ({
   onPress,
   index
 }) => {
-  const containerStyle = [styles.container];
-  if (index % 2 == 0) {
-    containerStyle.push({
-      flexDirection: "row-reverse"
-    });
-  }
+  // const containerStyle = [styles.container];
+  // if (index % 2 == 0) {
+  //   containerStyle.push({
+  //     flexDirection: "row-reverse"
+  //   });
+  // }
 
   return (
     <TouchableOpacity onPress={onPress}>
-      <View style={containerStyle}>
+      <View style={styles.container}>
         <Image style={styles.poster} source={{ uri: image_path + poster }} />
         <View style={styles.detailWrapper}>
           <Text numberOfLines={2} style={styles.title}>

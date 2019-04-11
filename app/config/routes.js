@@ -12,6 +12,7 @@ import MoviesScreen from "../screens/MoviesScreen";
 import MovieDetailScreen from "../screens/MovieDetailScreen";
 import SearchScreen from "../screens/SearchScreen";
 import MovieListScreen from "../screens/MovieListScreen";
+import ReduxScreen from "../screens/ReduxScreen";
 
 const MovieStack = createStackNavigator(
   {
@@ -68,6 +69,9 @@ const DrawerNavigator = createDrawerNavigator(
       navigationOptions: {
         drawerIcon: <Icon size={24} color="white" name="md-film" />
       }
+    },
+    Redux: {
+      screen: ReduxScreen
     }
   },
   {
