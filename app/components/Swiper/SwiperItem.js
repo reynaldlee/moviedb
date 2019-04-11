@@ -12,6 +12,7 @@ import {
 import { RedButton } from "../Buttons";
 
 import { image_path } from "../../config/constant";
+import { SimpleRatingView } from "../Rating";
 
 const SwiperItem = ({
   movieTitle,
@@ -41,7 +42,7 @@ const SwiperItem = ({
           {movieTitle}
         </Text>
         <Text style={styles.text}>{genre}</Text>
-        <Text style={styles.text}>{rating}</Text>
+        <SimpleRatingView rating={rating} />
         <Text numberOfLines={3} style={styles.text}>
           {overview}
         </Text>
